@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  mysqldb:
+    image: mysql
+    container_name: mysqldb
+    env_file: .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=$DB_ROOT_PASSWORD
+      - MYSQL_DATABASE=$DB_NAME
+    ports:
+      - $DB_PORT:$DB_PORT
+    volumes:
+      - mysqldb:/var/lib/mysql
+    networks:
+      - node19-movie
+  app:
+    depends_on:
+      - mysqldb
+    build: .
+    container_name: node19-express-movie
+    env_file: .env
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=mysqldb
+      - DB_NAME=$DB_NAME
+      - DB_PORT=$DB_PORT
+      - DB_ROOT_USER=$DB_ROOT_USER
+      - DB_ROOT_PASSWORD=$DB_ROOT_PASSWORD
+      - DB_DIALECT=$DB_DIALECT
+      - SECRET_KEY=$SECRET_KEY
+      - S3_BUCKET_NAME=$BUCKET_NAME
+      - S3_DOMAIN_NAME=$DOMAIN
+      - S3_ACCESSS_KEY=$ACCESS_KEY
+      - S3_SECRET_KEY=$S3_SECRET_KEY
+    networks:
+      - node19-movie
+
+volumes:
+  mysqldb:
+    driver: local
+
+networks:
+  node19-movie:
